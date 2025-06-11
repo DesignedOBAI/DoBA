@@ -20,3 +20,12 @@ This project is actively being worked on for AGI research purposes.
 There is a potential for this AI to become dangerous. Please use this code ethically, and wisely. Storing large amounts of data at this efficiency can lead to self-replication, hardware damage, or security issues.
 
 Please make sure you are using this code responsibly. 
+
+
+This verison of the code is:
+
+-ROCm compatible
+-CUDA compatible
+-Able to run on any GPU with at least 8GB of memory
+-Can run smaller LLM's but struggle with logic/reasoning to gather facts.
+-Anything above 14B can cause the code to crash. The cause of this is due to token limiting. If you have a system that is at least 28GB of VRAM, you can run 14B + 32B parameter models on this code, easily.
