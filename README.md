@@ -15,3 +15,8 @@ This AI has be ability to become potentially "self-aware" in a sense where it ca
 This is a MAJOR limiation that has impacted various well known LLM's.
 
 This project is actively being worked on for AGI research purposes.
+
+
+There is a potential for this AI to become dangerous. Please use this code ethically, and wisely. Storing large amounts of data at this efficiency can lead to self-replication, hardware damage, or security issues.
+
+Please make sure you are using this code responsibly. 
