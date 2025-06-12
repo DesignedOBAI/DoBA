@@ -71,7 +71,7 @@ pip install torch  # For GPU acceleration
 
 5. Run DoBA:
    ```bash
-   python DobAEI.py
+   python DobAEI.py (FOR CUDA SEMANTIC SEARCH ENABLED, TYPE: ./launch_gpu.sh IN PYCHARM TERMINAL)
    ```
 
 ## 🚀 Usage
