@@ -227,7 +227,7 @@ python reset_databases.py
 
 ## 📄 License
 
-This project is licensed under the "Other" license. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the "Apache 2.0" license. See the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
