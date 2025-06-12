@@ -140,6 +140,7 @@ CREATE TABLE memory_interactions (
 ## 🔧 API Integration
 
 DoBA is designed to work with LM Studio but can be adapted for other APIs:
+THIS IS TO MAKE IT EXTREMELY LIGHTWEIGHT, NO DOCKER, JUST A VENV RECOMMENDED IN PYCHARM.
 
 ### LM Studio (Default)
 - Endpoint: `http://localhost:1234/v1/chat/completions`
