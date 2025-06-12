@@ -1,3 +1,20 @@
+## 🎯 Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/DesignedOBAI/DoBA.git
+cd DoBA
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Reset databases for fresh start
+python reset_databases.py
+
+# Run DoBA
+python main.py
+
+
 # DoBA
 **Designed only By AI**
 
