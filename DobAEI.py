@@ -777,6 +777,153 @@ Return only the tags, comma-separated:"""
             # Fallback semantic tags
             return [key.lower(), value.lower(), category.lower()]
 
+    # Add this method to the IntelligentMemoryManager class after line 778
+
+    def clean_json_response(self, response):
+        """Clean and fix common JSON formatting issues"""
+        import re
+
+        # Fix common escape issues
+        response = response.replace("\\'", "'")  # Fix escaped single quotes
+        response = response.replace('\\n', '\\\\n')  # Fix newlines
+        response = response.replace('\\t', '\\\\t')  # Fix tabs
+
+        # Remove any trailing commas before closing brackets
+        response = re.sub(r',(\s*[}\]])', r'\1', response)
+
+        return response
+
+    def safe_json_parse(self, response):
+        """Safely parse JSON with multiple fallback methods"""
+        import re
+
+        try:
+            # First attempt: Clean and parse
+            cleaned_response = self.clean_json_response(response)
+            return json.loads(cleaned_response)
+        except json.JSONDecodeError:
+            try:
+                # Second attempt: Extract JSON using regex and clean
+                json_pattern = r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}'
+                json_matches = re.findall(json_pattern, response, re.DOTALL)
+                if json_matches:
+                    cleaned_json = self.clean_json_response(json_matches[0])
+                    return json.loads(cleaned_json)
+                else:
+                    raise ValueError("No valid JSON found in response")
+            except (json.JSONDecodeError, ValueError):
+                # Third attempt: Try to fix common issues and parse again
+                try:
+                    # More aggressive cleaning
+                    fixed_response = response
+                    # Replace problematic escapes
+                    fixed_response = re.sub(r'\\(.)', r'\1', fixed_response)  # Remove all backslashes
+                    fixed_response = re.sub(r'"([^"]*)"([^"]*)"([^"]*)"', r'"\1\2\3"',
+                                            fixed_response)  # Fix quoted strings
+
+                    # Try to extract just the facts array
+                    facts_match = re.search(r'"facts"\s*:\s*\[(.*?)\]', fixed_response, re.DOTALL)
+                    if facts_match:
+                        # Build a minimal valid JSON
+                        facts_content = facts_match.group(1)
+                        minimal_json = f'{{"facts": [{facts_content}]}}'
+                        return json.loads(minimal_json)
+                    else:
+                        # Return empty facts structure
+                        return {"facts": []}
+                except:
+                    # Final fallback: return empty facts
+                    return {"facts": []}
+
+    # Replace the existing extract_facts_with_ai method (lines 559-646) with this improved version:
+
+    def extract_facts_with_ai(self, user_message, conversation_history=None):
+        """Use AI to intelligently extract facts from conversation with robust JSON parsing"""
+
+        # Create context for better fact extraction
+        context = ""
+        if conversation_history:
+            recent_context = conversation_history[-3:]  # Last 3 messages
+            context = "\n".join([f"{msg.get('role', 'unknown')}: {msg.get('content', '')}" for msg in recent_context])
+
+        extraction_prompt = f"""You are an expert fact extraction system. Analyze this conversation and extract ALL personal facts about the user.
+
+    Current conversation context:
+    {context}
+
+    Current user message: "{user_message}"
+
+    Extract facts in this exact JSON format (ensure proper JSON escaping):
+    {{
+        "facts": [
+            {{
+                "category": "personal_info|location|preferences|work|relationships|interests|physical|temporal",
+                "key": "descriptive_name_for_fact",
+                "value": "the_actual_value", 
+                "confidence": 0.95,
+                "reasoning": "why this is a fact"
+            }}
+        ]
+    }}
+
+    IMPORTANT: 
+    - Use proper JSON escaping for quotes and special characters
+    - Do not use single quotes inside JSON strings
+    - Keep reasoning field simple and avoid complex punctuation
+    - Categories: personal_info, location, preferences, work, relationships, interests, physical, temporal"""
+
+        try:
+            # Use your LM Studio to extract facts
+            response = self.get_ai_response(extraction_prompt)
+
+            # Clean response and parse JSON using safe parser
+            response = response.strip()
+            if not response.startswith('{'):
+                # Find JSON in response
+                json_start = response.find('{')
+                json_end = response.rfind('}') + 1
+                if json_start != -1 and json_end != 0:
+                    response = response[json_start:json_end]
+
+            # Use the new safe JSON parser
+            facts_data = self.safe_json_parse(response)
+            extracted_facts = []
+
+            for fact in facts_data.get("facts", []):
+                if fact.get("confidence", 0) >= 0.5:  # Minimum confidence threshold
+                    extracted_facts.append({
+                        'category': fact.get('category', 'general'),
+                        'key': fact.get('key', ''),
+                        'value': fact.get('value', ''),
+                        'confidence': fact.get('confidence', 0.5),
+                        'reasoning': fact.get('reasoning', ''),
+                        'context': user_message
+                    })
+
+                    # Store the fact
+                    # Apply personal fact filter before storing
+                    if self.is_personal_fact(user_message, fact.get('value', '')):
+                        self.store_intelligent_fact(
+                            fact.get('key', ''),
+                            fact.get('value', ''),
+                            fact.get('category', 'general'),
+                            user_message,
+                            fact.get('confidence', 0.5)
+                        )
+                    else:
+                        print(f"🚫 Skipping general knowledge: {fact.get('key', '')}")
+
+            print(f"🎯 AI extracted {len(extracted_facts)} facts from: '{user_message[:50]}...'")
+            for fact in extracted_facts:
+                print(f"   📝 {fact['category']}.{fact['key']}: {fact['value']} (confidence: {fact['confidence']})")
+
+            return extracted_facts
+
+        except Exception as e:
+            print(f"❌ Error in AI fact extraction: {e}")
+            print(f"Raw response: {response[:200]}...")
+            return []
+
     
     def handle_personal_query(self, user_message):
         """Handle personal information queries like 'what is my name?'"""
