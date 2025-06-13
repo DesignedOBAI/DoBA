@@ -4,7 +4,7 @@
 [![Python](https://img.shields.io/badge/python-3.7+-blue.svg)](https://python.org)
 [![LM Studio](https://img.shields.io/badge/API-LM%20Studio-green.svg)](http://localhost:1234)
 
-DoBA (Designed only By AI) is an open-source project pioneering AI development towards more autonomous, precise, neuron-like memory systems. This project implements advanced memory architectures and emotional intelligence for AI systems, designed to run through API endpoints with a focus on autonomous AI development.
+*BY DOWNLOADING THIS REPOSITORY, YOU INHERENTLY AGREE TO ALL LEGAL TERMS MENTIONED IN DOCUMENTS IN SAID REPOSITORY. EVERYTHING IN THIS REPOSITORY IS ABSOLUTE, AND TERMS CAN BE CHANGED AT ANY TIME. BY DOWNLOADING THIS REPOSITORY, YOU AGREE TO THESE TERMS.* DoBA (Designed only By AI) is an open-source project pioneering AI development towards more autonomous, precise, neuron-like memory systems. This project implements advanced memory architectures and emotional intelligence for AI systems, designed to run through API endpoints with a focus on autonomous AI development.
 
 ## 🎯 Project Vision
 
